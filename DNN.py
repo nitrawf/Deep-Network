@@ -12,6 +12,7 @@ import random
 import pickle
 
 
+
 # In[5]:
 
 
@@ -103,34 +104,6 @@ def loaddata():
     counter+=1
 
 
-# In[7]:
-
-
-def loaddata():
-    counter=1
-    mypath="D:\Download\cat-dataset\CAT_00"
-    catfiles = [f for f in listdir(mypath)]
-    for i in catfiles:
-        img=Image.open(mypath+"\\"+i)
-        img=img.resize((64,64))
-        x=np.asarray(img)
-        x=np.reshape(x,(x.shape[0]*x.shape[1]*x.shape[2],1))
-        X_list.append(x)
-        Y_list.append(1)
-    print(counter)
-    counter+=1    
-    mypath="D:\Download\cat-dataset\CAT_01"
-    catfiles = [f for f in listdir(mypath)]
-    for i in catfiles:
-        img=Image.open(mypath+"\\"+i)
-        img=img.resize((64,64))
-        x=np.asarray(img)
-        x=np.reshape(x,(x.shape[0]*x.shape[1]*x.shape[2],1))
-        X_list.append(x)
-        Y_list.append(1)
-    print(counter)
-    counter+=1
-    
 
 
 # In[8]:
@@ -230,40 +203,41 @@ def deepmodel(X,Y,learning_rate,iterations,layers_dims):
 
 # In[25]:
 
-
-X_list=[]
-Y_list=[]
-loaddata()
-c = list(zip(X_list, Y_list))
-random.shuffle(c)
-X_list, Y_list = zip(*c)
-X=np.array(X_list)
-X=X.reshape((X.shape[0],X.shape[1]))
-X=X.T
-Y=np.array(Y_list)
-Y=Y.reshape((1,Y.shape[0]))
-X=X/255
-X_trainset=X[:,0:int(X.shape[1]*0.9)]
-Y_trainset=Y[:,0:int(X.shape[1]*0.9)]
-X_testset=X[:,int(X.shape[1]*0.9):]
-Y_testset=Y[:,int(X.shape[1]*0.9):] 
-
-
-# In[34]:
-
-
-#layers_dims=layer_size(5,X,5)
-layers_dims=[X.shape[0],10,8,8,4,1]
-parameters=deepmodel(X_trainset,Y_trainset,0.01,2000,layers_dims)
-t=0.5
-
-
-# In[35]:
-
-
-predictions_train = predict(parameters, X_trainset,t)
-print ('Accuracy for training set with threshold %f: %d' %(t,float((np.dot(Y_trainset,predictions_train.T) + np.dot(1-Y_trainset,1-predictions_train.T))/float(Y_trainset.size)*100)))
-
-predictions_test = predict(parameters, X_testset,t)
-print ('Accuracy for test set: %d' % float((np.dot(Y_testset,predictions_test.T) + np.dot(1-Y_testset,1-predictions_test.T))/float(Y_testset.size)*100))
+if __name__ == "__main__":
+    X_list=[]
+    Y_list=[]
+    loaddata()
+    c = list(zip(X_list, Y_list))
+    random.shuffle(c)
+    X_list, Y_list = zip(*c)
+    X=np.array(X_list)
+    X=X.reshape((X.shape[0],X.shape[1]))
+    X=X.T
+    Y=np.array(Y_list)
+    Y=Y.reshape((1,Y.shape[0]))
+    X=X/255
+    X_trainset=X[:,0:int(X.shape[1]*0.9)]
+    Y_trainset=Y[:,0:int(X.shape[1]*0.9)]
+    X_testset=X[:,int(X.shape[1]*0.9):]
+    Y_testset=Y[:,int(X.shape[1]*0.9):] 
+    
+    
+    # In[34]:
+    
+    
+    #layers_dims=layer_size(5,X,5)
+    layers_dims=[X.shape[0],4,4,4,4,1]
+    parameters=deepmodel(X_trainset,Y_trainset,0.005,1500,layers_dims)
+    t=0.5
+    with open("parameters.txt","wb") as fp:
+        pickle.dump(parameters,fp)
+    
+    # In[35]:
+    
+    
+    predictions_train = predict(parameters, X_trainset,t)
+    print ('Accuracy for training set with threshold %f: %d' %(t,float((np.dot(Y_trainset,predictions_train.T) + np.dot(1-Y_trainset,1-predictions_train.T))/float(Y_trainset.size)*100)))
+    
+    predictions_test = predict(parameters, X_testset,t)
+    print ('Accuracy for test set: %d' % float((np.dot(Y_testset,predictions_test.T) + np.dot(1-Y_testset,1-predictions_test.T))/float(Y_testset.size)*100))
 
